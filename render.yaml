@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: task-3
+    env: node
+    plan: free
+    buildCommand: |
+      # Install PHP & Composer manually
+      apt-get update
+      apt-get install -y php php-cli php-mbstring php-dom php-pdo php-curl php-xml php-bcmath unzip curl git
+
+      # Install Composer
+      curl -sS https://getcomposer.org/installer | php
+      mv composer.phar /usr/local/bin/composer
+
+      # Laravel build steps
+      composer install --no-dev --optimize-autoloader
+      php artisan key:generate --force
+      php artisan migrate --force || true
+      php artisan config:cache
+      php artisan route:cache
+
+    startCommand: php -S 0.0.0.0:$PORT -t public
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        value: https://task-3.onrender.com
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 3306
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
